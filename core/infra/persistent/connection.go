@@ -2,28 +2,33 @@ package persistent
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"time"
 
 	"go-socket/config"
+	"go-socket/core/pkg/logging"
 
 	oracle "github.com/godoes/gorm-oracle"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
-func NewConnection(ctx context.Context, cfg *config.Config) (*gorm.DB, *sql.DB, error) {
+func NewConnection(ctx context.Context, cfg *config.Config) (*gorm.DB, error) {
+	logger := logging.FromContext(ctx)
+	logger.Infow("open gorm oracle", zap.Any("cfg", cfg.DBConfig))
 	dialector := oracle.New(oracle.Config{
 		DSN: cfg.DBConfig.ConnectionURL,
 	})
 	db, err := gorm.Open(dialector, &gorm.Config{})
 	if err != nil {
-		return nil, nil, fmt.Errorf("open gorm oracle failed: %w", err)
+		logger.Errorw("open gorm oracle failed", zap.Error(err))
+		return nil, fmt.Errorf("open gorm oracle failed: %w", err)
 	}
 
 	sqlDB, err := db.DB()
 	if err != nil {
-		return nil, nil, fmt.Errorf("get sql db failed: %w", err)
+		logger.Errorw("get sql db failed", zap.Error(err))
+		return nil, fmt.Errorf("get sql db failed: %w", err)
 	}
 
 	// Pool config
@@ -33,8 +38,9 @@ func NewConnection(ctx context.Context, cfg *config.Config) (*gorm.DB, *sql.DB, 
 
 	// Health check
 	if err := sqlDB.PingContext(ctx); err != nil {
-		return nil, nil, fmt.Errorf("ping db failed: %w", err)
+		logger.Errorw("ping db failed", zap.Error(err))
+		return nil, fmt.Errorf("ping db failed: %w", err)
 	}
 
-	return db, sqlDB, nil
+	return db, nil
 }

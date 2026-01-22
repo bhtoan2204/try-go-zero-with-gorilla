@@ -8,6 +8,7 @@ import (
 	"go-socket/core/infra/cache"
 	"go-socket/core/infra/persistent/models"
 
+	"github.com/samber/lo"
 	"gorm.io/gorm"
 )
 
@@ -74,6 +75,23 @@ func (r *accountRepoImpl) DeleteAccount(ctx context.Context, id string) error {
 	}
 
 	return r.accountCache.Delete(ctx, id)
+}
+
+func (r *accountRepoImpl) ListAccountsByRoomID(ctx context.Context, roomID string) ([]*entity.Account, error) {
+	var accounts []*models.AccountModel
+	err := r.db.WithContext(ctx).
+		Model(&models.AccountModel{}).
+		Select("accounts.*").
+		Joins("JOIN room_members rm ON rm.account_id = accounts.id").
+		Where("rm.room_id = ?", roomID).
+		Find(&accounts).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return lo.Map(accounts, func(account *models.AccountModel, _ int) *entity.Account {
+		return r.toEntity(account)
+	}), nil
 }
 
 func (r *accountRepoImpl) toEntity(m *models.AccountModel) *entity.Account {

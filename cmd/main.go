@@ -2,24 +2,42 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"go-socket/config"
-	"log"
+	appCtx "go-socket/core/context"
+	"go-socket/core/delivery/http"
+	"go-socket/core/pkg/logging"
 	"os/signal"
 	"syscall"
 )
 
 func main() {
 	ctx, done := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	logger := logging.FromContext(ctx)
+	logger.Infow("Starting application")
 	defer func() {
 		done()
 		if r := recover(); r != nil {
-			log.Fatalf("Recovered from panic: %v", r)
+			logger.Errorw("Recovered from panic", "error", r)
 		}
 	}()
+
 	cfg, err := config.LoadConfig(ctx)
 	if err != nil {
-		log.Fatalf("Failed to load config: %v", err)
+		logger.Errorw("Failed to load config", "error", err)
+		return
 	}
-	fmt.Println(cfg)
+	appCtx, err := appCtx.LoadAppCtx(ctx, cfg)
+	if err != nil {
+		logger.Errorw("Failed to create app context", "error", err)
+		return
+	}
+
+	appHttp := http.NewServer(cfg)
+	if err := appHttp.Start(ctx, appCtx); err != nil {
+		logger.Errorw("Failed to start app http", "error", err)
+		return
+	}
+
+	<-ctx.Done()
+	appCtx.Close()
 }
