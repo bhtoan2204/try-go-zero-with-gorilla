@@ -9,7 +9,7 @@ type RoomModel struct {
 	OwnerType string        `gorm:"not null"`
 	CreatedAt time.Time     `gorm:"autoCreateTime"`
 	UpdatedAt time.Time     `gorm:"autoUpdateTime"`
-	Owner     *AccountModel `gorm:"foreignKey:OwnerID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	Owner     *AccountModel `gorm:"foreignKey:OwnerID;references:ID;constraint:OnDelete:CASCADE"`
 }
 
 func (RoomModel) TableName() string {

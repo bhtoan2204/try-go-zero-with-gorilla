@@ -15,7 +15,6 @@ import (
 
 func NewConnection(ctx context.Context, cfg *config.Config) (*gorm.DB, error) {
 	logger := logging.FromContext(ctx)
-	logger.Infow("open gorm oracle", zap.Any("cfg", cfg.DBConfig))
 	dialector := oracle.New(oracle.Config{
 		DSN: cfg.DBConfig.ConnectionURL,
 	})

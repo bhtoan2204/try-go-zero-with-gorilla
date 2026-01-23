@@ -8,7 +8,7 @@ type AccountModel struct {
 	Password  string      `gorm:"not null"`
 	CreatedAt time.Time   `gorm:"autoCreateTime"`
 	UpdatedAt time.Time   `gorm:"autoUpdateTime"`
-	Rooms     []RoomModel `gorm:"foreignKey:OwnerID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	Rooms     []RoomModel `gorm:"foreignKey:OwnerID;references:ID;constraint:OnDelete:CASCADE"`
 }
 
 func (AccountModel) TableName() string {
