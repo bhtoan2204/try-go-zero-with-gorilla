@@ -1,7 +1,7 @@
 package handler
 
-import "context"
+import "github.com/gin-gonic/gin"
 
 type RequestHandler interface {
-	Handle(ctx context.Context) (interface{}, error)
+	Handle(c *gin.Context) (interface{}, error)
 }

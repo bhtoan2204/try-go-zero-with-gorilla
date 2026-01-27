@@ -3,6 +3,7 @@ package http
 import (
 	"go-socket/config"
 	"go-socket/core/delivery/http/handler"
+	"go-socket/core/usecase"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -20,11 +21,11 @@ type routingHandler struct {
 	registry    map[string]routingConfig
 }
 
-func NewRoutingHandler(config *config.Config, redisClient *redis.Client) RoutingHandler {
+func NewRoutingHandler(config *config.Config, redisClient *redis.Client, usecase usecase.Usecase) RoutingHandler {
 	return &routingHandler{
 		config:      config,
 		redisClient: redisClient,
-		registry:    BuildRegistry(config),
+		registry:    BuildRegistry(config, usecase),
 	}
 }
 

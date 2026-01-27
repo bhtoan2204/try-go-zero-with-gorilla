@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"go-socket/core/acl/idempotency"
+	"go-socket/shared/infra/idempotency"
 
 	"github.com/gin-gonic/gin"
 )

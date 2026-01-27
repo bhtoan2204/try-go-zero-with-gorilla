@@ -4,11 +4,13 @@ import (
 	"context"
 	"go-socket/config"
 	"go-socket/constant"
-	"go-socket/core/acl/idempotency"
 	appCtx "go-socket/core/context"
 	"go-socket/core/delivery/http/middleware"
-	infraacl "go-socket/core/infra/acl"
-	"go-socket/core/pkg/server"
+	accountrepo "go-socket/core/domain/account/infra/persistent/repos"
+	accountusecase "go-socket/core/domain/account/usecase"
+	coreusecase "go-socket/core/usecase"
+	"go-socket/shared/infra/idempotency"
+	"go-socket/shared/pkg/server"
 	"net/http"
 
 	"github.com/gin-contrib/cors"
@@ -27,6 +29,7 @@ type Server struct {
 	router     *gin.Engine
 	httpServer *http.Server
 	handler    RoutingHandler
+	usecase    coreusecase.Usecase
 }
 
 func NewServer(cfg *config.Config) *Server {
@@ -39,14 +42,16 @@ func (s *Server) Routes(ctx context.Context, appCtx *appCtx.AppContext) *gin.Eng
 	r := gin.New()
 	r.MaxMultipartMemory = 50 << 20
 	r.RedirectTrailingSlash = false
+	cache := appCtx.GetCache()
 	r.Use(middleware.SetRequestID())
-	idemStore := infraacl.NewRedisIdempotencyStore(appCtx.GetCache())
+	idemStore := idempotency.NewRedisStore(cache)
 	idemManager := idempotency.NewManager(
 		idemStore,
 		constant.DEFAULT_IDEMPOTENCY_LOCK_TTL,
 		constant.DEFAULT_IDEMPOTENCY_DONE_TTL,
 	)
 	r.Use(middleware.IdempotencyMiddleware(idemManager))
+	r.Use(middleware.RateLimitMiddleware(cache))
 	r.Use(gin.CustomRecovery(func(c *gin.Context, err interface{}) {
 		c.JSON(http.StatusInternalServerError, gin.H{"errors": gin.H{"error": "something went wrong"}})
 	}))
@@ -75,7 +80,7 @@ func (s *Server) Routes(ctx context.Context, appCtx *appCtx.AppContext) *gin.Eng
 	r.HEAD("/health-check", pingHandler)
 
 	s.router = r
-	s.handler = NewRoutingHandler(s.cfg, appCtx.GetRedisClient())
+	s.handler = NewRoutingHandler(s.cfg, appCtx.GetRedisClient(), s.usecase)
 
 	// public api
 	s.registerPublicAPI()
@@ -84,12 +89,23 @@ func (s *Server) Routes(ctx context.Context, appCtx *appCtx.AppContext) *gin.Eng
 }
 
 func (s *Server) Start(ctx context.Context, appCtx *appCtx.AppContext) error {
+	uc, err := s.buildUsecase(appCtx)
+	if err != nil {
+		return err
+	}
+	s.usecase = uc
 	srv, err := server.New(s.cfg.HttpConfig.Port)
 	if err != nil {
 		return err
 	}
 
 	return srv.ServeHTTPHandler(ctx, s.Routes(ctx, appCtx))
+}
+
+func (s *Server) buildUsecase(appCtx *appCtx.AppContext) (coreusecase.Usecase, error) {
+	repos := accountrepo.NewRepoImpl(appCtx)
+	authUC := accountusecase.NewAuthUsecase(appCtx, repos)
+	return coreusecase.NewUsecase(authUC), nil
 }
 
 func (s *Server) registerPublicAPI() {

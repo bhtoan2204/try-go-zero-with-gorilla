@@ -7,8 +7,8 @@ import (
 	"go-socket/config"
 	appCtx "go-socket/core/context"
 	"go-socket/core/delivery/http"
-	"go-socket/core/infra/persistent"
-	"go-socket/core/pkg/logging"
+	"go-socket/shared/infra/db"
+	"go-socket/shared/pkg/logging"
 	"os/signal"
 	"syscall"
 )
@@ -35,7 +35,7 @@ func main() {
 		return
 	}
 
-	migrateTool := persistent.NewMigrateTool()
+	migrateTool := db.NewMigrateTool()
 	pathMigration := flag.String("path", "migration/", "path to migrations folder")
 	if err := migrateTool.Migrate(fmt.Sprintf("file://%s", *pathMigration), cfg.DBConfig.ConnectionURL); err != nil {
 		logger.Errorw("Failed to migrate database", "error", err)

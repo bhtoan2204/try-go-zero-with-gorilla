@@ -11,4 +11,5 @@ type RoutingHandler interface {
 
 func (h *routingHandler) RegisterHandlers(routes *gin.RouterGroup) {
 	routes.POST("/auth/login", h.Handle())
+	routes.POST("/auth/register", h.Handle())
 }

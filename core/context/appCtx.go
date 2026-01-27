@@ -2,7 +2,9 @@ package appCtx
 
 import (
 	"context"
-	"go-socket/core/infra/cache"
+	"go-socket/shared/infra/cache"
+	"go-socket/shared/infra/xpaseto"
+	"go-socket/shared/pkg/hasher"
 
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
@@ -14,6 +16,8 @@ type AppContext struct {
 	redisClient *redis.Client
 	db          *gorm.DB
 	cache       cache.Cache
+	hasher      hasher.Hasher
+	paseto      xpaseto.PasetoService
 }
 
 func NewAppContext(ctx context.Context, opts ...Option) (*AppContext, error) {
@@ -42,6 +46,18 @@ func WithDB(db *gorm.DB) Option {
 	}
 }
 
+func WithHasher(hasher hasher.Hasher) Option {
+	return func(appCtx *AppContext) {
+		appCtx.hasher = hasher
+	}
+}
+
+func WithPaseto(paseto xpaseto.PasetoService) Option {
+	return func(appCtx *AppContext) {
+		appCtx.paseto = paseto
+	}
+}
+
 func (appCtx *AppContext) GetRedisClient() *redis.Client {
 	return appCtx.redisClient
 }
@@ -52,6 +68,14 @@ func (appCtx *AppContext) GetDB() *gorm.DB {
 
 func (appCtx *AppContext) GetCache() cache.Cache {
 	return appCtx.cache
+}
+
+func (appCtx *AppContext) GetHasher() hasher.Hasher {
+	return appCtx.hasher
+}
+
+func (appCtx *AppContext) GetPaseto() xpaseto.PasetoService {
+	return appCtx.paseto
 }
 
 func (appCtx *AppContext) Close() {

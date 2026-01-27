@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"go-socket/core/pkg/contxt"
+	"go-socket/shared/pkg/contxt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

@@ -11,20 +11,20 @@ import (
 	"go.uber.org/zap"
 )
 
-type loginHandler struct {
+type registerHandler struct {
 	authUsecase usecase.AuthUsecase
 }
 
-func NewLoginHandler(usecase usecase.Usecase) RequestHandler {
-	return &loginHandler{
+func NewRegisterHandler(usecase usecase.Usecase) RequestHandler {
+	return &registerHandler{
 		authUsecase: usecase.AuthUsecase(),
 	}
 }
 
-func (h *loginHandler) Handle(c *gin.Context) (interface{}, error) {
+func (h *registerHandler) Handle(c *gin.Context) (interface{}, error) {
 	ctx := c.Request.Context()
 	logger := logging.FromContext(ctx)
-	var request in.LoginRequest
+	var request in.RegisterRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		logger.Errorw("Unmarshal request failed", zap.Error(err))
 		return nil, err
@@ -33,12 +33,12 @@ func (h *loginHandler) Handle(c *gin.Context) (interface{}, error) {
 		logger.Errorw("Validate request failed", zap.Error(err))
 		return nil, errors.New("validate request failed")
 	}
-	token, err := h.authUsecase.Login(ctx, request.Email, request.Password)
+	token, err := h.authUsecase.Register(ctx, request.Email, request.Password)
 	if err != nil {
-		logger.Errorw("Login failed", zap.Error(err))
-		return nil, errors.New("login failed")
+		logger.Errorw("Register failed", zap.Error(err))
+		return nil, errors.New("register failed")
 	}
-	return out.LoginResponse{
+	return out.RegisterResponse{
 		Token: token,
 	}, nil
 }

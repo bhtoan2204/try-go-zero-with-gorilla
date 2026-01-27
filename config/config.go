@@ -4,6 +4,7 @@ type Config struct {
 	RedisConfig RedisConfig
 	HttpConfig  HttpConfig
 	DBConfig    DBConfig
+	AuthConfig  AuthConfig
 }
 
 type RedisConfig struct {
@@ -27,4 +28,10 @@ type DBConfig struct {
 	MaxOpenConnNumber      int    `env:"DB_MAX_OPEN_CONN_NUMBER"`
 	MaxIdleConnNumber      int    `env:"DB_MAX_IDLE_CONN_NUMBER"`
 	ConnMaxLifeTimeSeconds int64  `env:"DB_CONN_MAX_LIFE_TIME_SECONDS"`
+}
+
+type AuthConfig struct {
+	PasetoKey             string `env:"AUTH_PASETO_KEY"`
+	TokenIssuer           string `env:"AUTH_TOKEN_ISSUER"`
+	AccessTokenTTLSeconds int64  `env:"AUTH_ACCESS_TOKEN_TTL_SECONDS"`
 }
