@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 	appCtx "go-socket/core/context"
-	"go-socket/core/domain/entity"
-	"go-socket/core/domain/repos"
+	"go-socket/core/domain/account/entity"
+	"go-socket/core/domain/account/repos"
 	"go-socket/core/infra/cache"
 	"go-socket/core/infra/persistent/models"
 
@@ -40,6 +40,21 @@ func (r *accountRepoImpl) GetAccountByID(ctx context.Context, id string) (*entit
 
 	_ = r.accountCache.Set(ctx, &m)
 
+	return r.toEntity(&m), nil
+}
+
+func (r *accountRepoImpl) GetAccountByEmail(ctx context.Context, email string) (*entity.Account, error) {
+	var m models.AccountModel
+	err := r.db.WithContext(ctx).
+		Where("email = ?", email).
+		First(&m).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, repos.ErrAccountNotFound
+		}
+		return nil, err
+	}
+	_ = r.accountCache.Set(ctx, &m)
 	return r.toEntity(&m), nil
 }
 

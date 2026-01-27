@@ -3,8 +3,11 @@ package http
 import (
 	"context"
 	"go-socket/config"
+	"go-socket/constant"
+	"go-socket/core/acl/idempotency"
 	appCtx "go-socket/core/context"
 	"go-socket/core/delivery/http/middleware"
+	infraacl "go-socket/core/infra/acl"
 	"go-socket/core/pkg/server"
 	"net/http"
 
@@ -37,6 +40,13 @@ func (s *Server) Routes(ctx context.Context, appCtx *appCtx.AppContext) *gin.Eng
 	r.MaxMultipartMemory = 50 << 20
 	r.RedirectTrailingSlash = false
 	r.Use(middleware.SetRequestID())
+	idemStore := infraacl.NewRedisIdempotencyStore(appCtx.GetCache())
+	idemManager := idempotency.NewManager(
+		idemStore,
+		constant.DEFAULT_IDEMPOTENCY_LOCK_TTL,
+		constant.DEFAULT_IDEMPOTENCY_DONE_TTL,
+	)
+	r.Use(middleware.IdempotencyMiddleware(idemManager))
 	r.Use(gin.CustomRecovery(func(c *gin.Context, err interface{}) {
 		c.JSON(http.StatusInternalServerError, gin.H{"errors": gin.H{"error": "something went wrong"}})
 	}))

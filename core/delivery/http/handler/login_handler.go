@@ -3,11 +3,13 @@ package handler
 import (
 	"context"
 	"go-socket/core/pkg/logging"
+	"go-socket/core/usecase"
 
 	"github.com/gin-gonic/gin"
 )
 
 type loginHandler struct {
+	authUsecase usecase.AuthUsecase
 }
 
 func NewLoginHandler() RequestHandler {

@@ -17,6 +17,10 @@ type hasherImpl struct {
 	KeyLen  uint32
 }
 
+func NewHasher() (Hasher, error) {
+	return newHasher()
+}
+
 func newHasher() (Hasher, error) {
 	salt, err := genSalt(32)
 	if err != nil {

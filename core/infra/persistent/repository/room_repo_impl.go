@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 	appCtx "go-socket/core/context"
-	"go-socket/core/domain/entity"
-	"go-socket/core/domain/repos"
+	"go-socket/core/domain/room/entity"
+	"go-socket/core/domain/room/repos"
 	"go-socket/core/infra/cache"
 	"go-socket/core/infra/persistent/models"
 

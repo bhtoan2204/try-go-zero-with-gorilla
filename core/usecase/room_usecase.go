@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"context"
-	"go-socket/core/domain/entity"
+	"go-socket/core/domain/room/entity"
 )
 
 type RoomUsecase interface {
