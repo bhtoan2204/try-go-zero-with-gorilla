@@ -6,6 +6,7 @@ endpoints:
     method: POST
     path: /room/create
     handler: CreateRoomHandler
+    auth: true
     usecase:
       name: RoomUsecase
       method: CreateRoom
@@ -30,6 +31,7 @@ endpoints:
     method: GET
     path: /room/list
     handler: ListRoomsHandler
+    auth: true
     usecase:
       name: RoomUsecase
       method: ListRooms
@@ -71,6 +73,7 @@ endpoints:
     method: GET
     path: /room/get
     handler: GetRoomHandler
+    auth: true
     usecase:
       name: RoomUsecase
       method: GetRoom
@@ -101,6 +104,7 @@ endpoints:
     method: PUT
     path: /room/update
     handler: UpdateRoomHandler
+    auth: true
     usecase:
       name: RoomUsecase
       method: UpdateRoom
@@ -127,6 +131,7 @@ endpoints:
     method: DELETE
     path: /room/delete
     handler: DeleteRoomHandler
+    auth: true
     usecase:
       name: RoomUsecase
       method: DeleteRoom
