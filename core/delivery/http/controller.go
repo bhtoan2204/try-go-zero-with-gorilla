@@ -2,9 +2,9 @@ package http
 
 import (
 	"go-socket/config"
+	"go-socket/core/application/usecase"
 	appCtx "go-socket/core/context"
 	"go-socket/core/delivery/http/handler"
-	"go-socket/core/usecase"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
