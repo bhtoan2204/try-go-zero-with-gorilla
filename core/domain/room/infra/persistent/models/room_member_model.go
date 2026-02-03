@@ -6,7 +6,7 @@ import (
 )
 
 type RoomMemberModel struct {
-	ID        uint           `gorm:"primaryKey;autoIncrement"`
+	ID        string         `gorm:"primaryKey"`
 	RoomID    string         `gorm:"not null;index"`
 	AccountID string         `gorm:"not null;index"`
 	Role      types.RoomRole `gorm:"default:member"`

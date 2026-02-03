@@ -3,9 +3,9 @@ package assembly
 import (
 	coreusecase "go-socket/core/application/usecase"
 	appCtx "go-socket/core/context"
-	accountrepo "go-socket/core/domain/account/infra/persistent/repos"
+	accountrepo "go-socket/core/domain/account/infra/persistent/repository"
 	accountusecase "go-socket/core/domain/account/usecase"
-	roomrepo "go-socket/core/domain/room/infra/persistent/repos"
+	roomrepo "go-socket/core/domain/room/infra/persistent/repository"
 	roomusecase "go-socket/core/domain/room/usecase"
 )
 

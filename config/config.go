@@ -35,3 +35,9 @@ type AuthConfig struct {
 	TokenIssuer           string `env:"AUTH_TOKEN_ISSUER"`
 	AccessTokenTTLSeconds int64  `env:"AUTH_ACCESS_TOKEN_TTL_SECONDS"`
 }
+
+type KafkaConfig struct {
+	KafkaServers     string `env:"KAFKA_SERVERS"`
+	KafkaPrefixGroup string `env:"KAFKA_PREFIX_GROUP"`
+	KafkaOffsetReset string `env:"KAFKA_OFFSET_RESET"`
+}
